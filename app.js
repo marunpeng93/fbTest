@@ -59,4 +59,6 @@ app.post('/instagram', function(req, res) {
   res.sendStatus(200);
 });
 
-app.listen();
+app.listen(3000, function(){
+  console.log("success:" + 3000)
+});
