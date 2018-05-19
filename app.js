@@ -33,7 +33,7 @@ const
   app.post('/webhook', (req, res) => {  
  
     let body = req.body;
-  
+    console.log(body)
     if (body.object === 'page') {
   
       body.entry.forEach(function(entry) {
