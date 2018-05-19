@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pking-http
+  labels:
+    app: pking-http
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pking-http
+  template:
+    metadata:
+      labels:
+        app: pking-http
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: app
+                operator: Exists
+      containers:
+      - name: pking-http
+        image: gcr.io/pking-ok/pking-test:v1.0.0
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "16Mi"
+          limits:
+            cpu: "100m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "test"
+        - name: REDIS_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: redis-cluster-configmap
+              key: hosts
+        - name: SOCKET_AMOUNT
+          valueFrom:
+            configMapKeyRef:
+              name: socket-amount-configmap
+              key: amount
+        - name: ROLLING_UPDATE
+          value: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pking-http
+  labels:
+    app: pking-http
+spec:
+  type: NodePort 
+  ports:
+  - port: 3000
+    protocol: TCP
+  selector:
+    app: pking-http
